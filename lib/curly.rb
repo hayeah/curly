@@ -104,7 +104,7 @@ class Curly::Parser
     string = if heredoc?
                heredoc
              else
-               @scanner.scan(/[a-zA-Z0-9_-]+/)
+               @scanner.scan(/[a-zA-Z0-9_-:]+/)
              end
     if string.nil?
       error("Expects a token")
