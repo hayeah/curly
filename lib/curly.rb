@@ -151,8 +151,17 @@ class Curly::Parser
   end
 
   def heredoc_short
-    # TODO fancy stuff like (), {}, <>
     delimiter = @scanner.getch
+    case delimiter
+    when "<"
+      delimiter = ">"
+    when "["
+      delimiter = "]"
+    when "{"
+      delimiter = "}"
+    when "("
+      delimiter = ")"
+    end
     string = scan(Regexp.new("[^#{Regexp.quote(delimiter)}]*"))
     @scanner.getch
     string
