@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "README",
      "Rakefile",
      "VERSION",
+     "curly.gemspec",
      "lib/curly.rb",
      "spec/curly_spec.rb",
      "spec/spec.opts",
@@ -37,7 +38,7 @@ Gem::Specification.new do |s|
     "spec/curly_spec.rb",
      "spec/spec_helper.rb"
   ]
-
+  s.add_dependency(%q<nokogiri>)
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3

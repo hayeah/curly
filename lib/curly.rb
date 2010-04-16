@@ -1,10 +1,30 @@
-class Curly
+module Curly
+  require 'nokogiri'
+  extend self
   def parse(source)
     Parser.new(source).parse
   end
-end
 
-class Curly::Tag < Struct.new(:head,:attributes,:body)
+  def xml(source)
+    build_xml(parse(source))
+  end
+
+  protected
+  def build_xml(parse)
+    head, attributes, body = parse
+    Nokogiri::XML::Builder.new do |doc|
+      doc.send(head,attributes.inject({}) { |h,(k,v)| h[k] = v; h}) do |tag|
+        body.each { |element|
+          case element
+          when String
+            tag.text(element)
+          when Array
+            tag.send(:insert,build_xml(element).root)
+          end
+        }
+      end
+    end.doc
+  end
 end
 
 class Curly::Parser
