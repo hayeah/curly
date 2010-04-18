@@ -9,6 +9,10 @@ module Curly
     build_xml(parse(source))
   end
 
+  def node(source)
+    xml(source).root
+  end
+
   protected
   def build_xml(parse)
     head, attributes, body = parse

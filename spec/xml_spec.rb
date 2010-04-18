@@ -6,7 +6,7 @@ describe "Curly.xml" do
   end
 
   def node(source)
-    xml(source).root
+    Curl.node(source)
   end
 
   describe "xml" do
