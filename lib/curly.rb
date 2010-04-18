@@ -13,17 +13,32 @@ module Curly
   def build_xml(parse)
     head, attributes, body = parse
     Nokogiri::XML::Builder.new do |doc|
-      doc.send(head,attributes.inject({}) { |h,(k,v)| h[k] = v; h}) do |tag|
+      attributes = attributes.inject({}) { |h,(k,v)|
+        h[k] = v; h
+      }
+      doc.send(head,attributes) do |tag|
         body.each { |element|
-          case element
-          when String
-            tag.text(element)
-          when Array
-            tag.send(:insert,build_xml(element).root)
-          end
+          insert(tag,element)
         }
       end
     end.doc
+  end
+
+  def insert(tag,element)
+    case element
+    when String
+      tag.text(element)
+    when Array
+      head, attributes, body = element
+      case head
+      when %s(!)
+        # do nothing
+      when :cdata
+        tag.cdata(body.first)
+      else
+        tag.send(:insert,build_xml(element).root)
+      end
+    end
   end
 end
 
@@ -104,7 +119,7 @@ class Curly::Parser
     string = if heredoc?
                heredoc
              else
-               @scanner.scan(/[:a-zA-Z0-9_-]+/)
+               @scanner.scan(/[:!a-zA-Z0-9_-]+/)
              end
     if string.nil?
       error("Expects a token")
