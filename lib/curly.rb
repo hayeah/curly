@@ -1,4 +1,5 @@
 module Curly
+  require 'strscan'
   require 'nokogiri'
   extend self
   def parse(source)
@@ -6,45 +7,93 @@ module Curly
   end
 
   def xml(source)
-    build_xml(parse(source))
+    XML.new(source).generate
   end
 
   def node(source)
     xml(source).root
   end
+end
 
-  protected
-  def build_xml(parse)
-    head, attributes, body = parse
-    Nokogiri::XML::Builder.new do |doc|
-      attributes = attributes.inject({}) { |h,(k,v)|
-        h[k] = v; h
-      }
-      doc.send(head,attributes) do |tag|
-        body.each { |element|
-          insert(tag,element)
-        }
-      end
-    end.doc
+class Curly::XML
+  def initialize(source)
+    @source = source
+    @parse = Curly::Parser.new(source).parse
   end
 
-  def insert(tag,element)
+  def generate
+    build_xml(@parse)
+  end
+
+  protected
+
+  def build_xml(element)
+    doc = Nokogiri::XML::Document.new
+    doc.add_child(build_node(doc,element))
+    doc
+  end
+
+  def build_node(doc,element)
+    head, attributes, children = element
+    node = create_element(doc,head,attributes)
+    children.each { |child|
+      insert(node,child)
+    }
+    node
+  end
+
+  def create_element(doc,head,attributes)
+    attributes = attributes.inject({}) { |h,(k,v)|
+      h[k] = v; h
+    }
+    name, id, classes = parse_tag_name(head)
+    node = doc.create_element(name,attributes)
+    if id
+      node["id"] = id
+    end
+    if !classes.empty?
+      node["class"] = classes.join(" ")
+    end
+    node
+  end
+
+  def insert(node,element)
+    doc = node.document
     case element
     when String
-      tag.text(element)
+      node << doc.create_text_node(element)
     when Array
       head, attributes, body = element
       case head
       when %s(!)
         # do nothing
       when :cdata
-        tag.cdata(body.first)
+        node << Nokogiri::XML::CDATA.new(doc, body.to_s)
       else
-        tag.send(:insert,build_xml(element).root)
+        child = build_node(node.document,element)
+        node << child
       end
     end
   end
+
+  def parse_tag_name(head)
+    head = head.to_s
+    id = nil
+    head.gsub!(/#([^.]*)/) { |match|
+      id = $1
+      raise "empty id" if id.empty?
+      ""
+    }
+    tokens = head.split(".")
+    head = tokens.shift
+    classes = tokens
+
+    raise "empty head" if head.empty?
+    
+    return [head,id,classes]
+  end
 end
+
 
 class Curly::Parser
   require 'strscan'
@@ -123,7 +172,7 @@ class Curly::Parser
     string = if heredoc?
                heredoc
              else
-               @scanner.scan(/[:!a-zA-Z0-9_-]+/)
+               @scanner.scan(/[:.#!a-zA-Z0-9_-]+/)
              end
     if string.nil?
       error("Expects a token")
