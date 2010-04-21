@@ -17,5 +17,3 @@ end
 
 require 'curly/parser'
 require 'curly/xml'
-
-

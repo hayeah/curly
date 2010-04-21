@@ -59,9 +59,13 @@ class Curly::Parser
   end
   
   def attribute_text
+    #p [:attribute_text]
     text = ""
     loop {
-      if eos? || peek(1) == ATTRIBUTE_CLOSE
+      #p peek(1)
+      if peek(1) == ATTRIBUTE_OPEN
+        error("Unexpected attribute opening: [")
+      elsif eos? || peek(1) == ATTRIBUTE_CLOSE
         return text
       elsif heredoc?
         text << heredoc

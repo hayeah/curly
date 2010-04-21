@@ -135,6 +135,10 @@ describe "Curly::Parser" do
       attributes("").should be_empty
     end
 
+    it "raises on incorrect nesting" do
+      lambda { attributes("[af}[foo]") }.should raise_syntax
+    end
+
     it "collets attributes" do
       attributes("[a b] [c d]").should ==
         [[:a, "b"], [:c, "d"]]
