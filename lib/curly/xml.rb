@@ -8,13 +8,13 @@ class Curly::XML
     build_xml(@parse)
   end
 
-  protected
-
   def build_xml(element)
     doc = Nokogiri::XML::Document.new
     doc.add_child(build_node(doc,element))
     doc
   end
+
+  protected
 
   def build_node(doc,element)
     head, attributes, children = element
