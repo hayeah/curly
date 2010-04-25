@@ -66,10 +66,11 @@ describe "Curly::XML" do
       xml("{foo[a 1][b 2] {cdata lalala} bar{! {qux}} bar{baz {foo[a 3] foo}}}")
     end
     subject { doc }
-    its(:inner_text) {
-      should == "lalala bar barfoo"
-    }
 
+    specify("inner_text") {
+      doc.inner_text.should == "lalala bar barfoo"
+    }
+    
     def search(selector,n=1)
       (doc / selector).should have(n).nodes
     end
