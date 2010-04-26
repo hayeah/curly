@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Howard Yeh"]
-  s.date = %q{2010-04-20}
+  s.date = %q{2010-04-25}
   s.description = %q{Simplified XML that does what you need}
   s.email = %q{hayeah@gmail.com}
   s.extra_rdoc_files = [
@@ -29,7 +29,6 @@ Gem::Specification.new do |s|
      "lib/curly/parser.rb",
      "lib/curly/xml.rb",
      "spec/parser_spec.rb",
-     "spec/spec.opts",
      "spec/spec_helper.rb",
      "spec/xml_spec.rb"
   ]
