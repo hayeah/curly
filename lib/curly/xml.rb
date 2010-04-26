@@ -56,9 +56,16 @@ class Curly::XML
     end
 
     def create_element(doc,head,attributes)
-      attributes = attributes.inject({}) { |h,(k,v)|
-        h[k] = v; h
-      }
+      case attributes
+      when Array
+        attributes = attributes.inject({}) { |h,(k,v)|
+          h[k] = v; h
+        }
+      when Hash
+      else
+        raise TypeError, "tag attributes should be a hash or an array of tuples"
+      end
+      
       name, id, classes = parse_tag_name(head)
       node = doc.create_element(name,attributes)
       if id
